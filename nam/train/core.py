@@ -637,7 +637,7 @@ def estimate_latency_and_blips(
     output_wav,
     blip_times_s,
     max_lag_s=0.1
-) -> _metadata.LatencyCalibration::
+) -> _metadata.LatencyCalibration:
     """
     Estimate latency between input and output WAV files and locate blips.
 
