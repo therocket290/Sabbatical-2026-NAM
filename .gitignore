@@ -15,9 +15,6 @@ test_predictions/
 *.log
 .DS_Store
 
-# Audio + models (optional — decide if you want these tracked)
-*.wav
-
 experiment_results.csv
 nam_runs/
 nam_staged_runs/
