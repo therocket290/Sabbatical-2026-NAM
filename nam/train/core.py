@@ -627,9 +627,79 @@ def _calibrate_latency_v_all(
 
 
 ######
+######
+import numpy as np
+import soundfile as sf
+from scipy.signal import correlate
 
-####
+def estimate_latency_and_blips(
+    input_wav,
+    output_wav,
+    blip_times_s,
+    max_lag_s=0.1
+) -> _metadata.LatencyCalibration::
+    """
+    Estimate latency between input and output WAV files and locate blips.
 
+    Parameters
+    ----------
+    input_wav : str
+        Path to input WAV file
+    output_wav : str
+        Path to output WAV file
+    blip_times_s : list of float
+        Known blip times (seconds) in the input file
+    max_lag_s : float
+        Maximum lag to search (seconds)
+
+    Returns
+    -------
+    latency_samples : int
+    latency_ms : float
+    blip_table : list of tuples
+        (input_time_s, output_time_s, input_sample, output_sample)
+    """
+
+    x, sr = sf.read(input_wav)
+    y, sr_y = sf.read(output_wav)
+    assert sr == sr_y, "Sample rates do not match"
+
+    # mono if needed
+    if x.ndim > 1:
+        x = x.mean(axis=1)
+    if y.ndim > 1:
+        y = y.mean(axis=1)
+
+    max_lag = int(max_lag_s * sr)
+
+    # cross-correlation (output relative to input)
+    corr = correlate(y, x, mode="full")
+    lags = np.arange(-len(x) + 1, len(y))
+
+    # restrict lag search window
+    mask = np.abs(lags) <= max_lag
+    lag = lags[mask][np.argmax(corr[mask])]
+
+    latency_samples = lag
+    latency_ms = 1000 * lag / sr
+
+    blip_table = []
+    for t in blip_times_s:
+        in_samp = int(round(t * sr))
+        out_samp = in_samp + latency_samples
+        blip_table.append(
+            (t, out_samp / sr, in_samp, out_samp)
+        )
+
+    #return latency_samples, latency_ms, blip_table
+
+    return _metadata.LatencyCalibration(
+        algorithm_version=5,
+        delays=latency_samples,    
+    )
+
+#######
+#######
 def _calibrate_latency_v5(
     data_info: _DataInfo,
     y,
