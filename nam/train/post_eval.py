@@ -188,7 +188,7 @@ def evaluate_case(
 def evaluate_predictions(
     test_dir: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/tests",
     pred_dir: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/test_predictions",
-    csv_path: str | Path = "Sabbatical-2026-NAM/NAM_Notebookexperiment_results.csv",
+    csv_path: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/experiment_results.csv",
     sr: int = 48_000,
     run_metadata: Optional[Dict[str, object]] = None,
 ) -> Dict[str, Dict[str, Optional[float]]]:
