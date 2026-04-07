@@ -294,7 +294,7 @@ def render_model(model, di_path, out_path):
 #########################
 def run_test_set(
     model,
-    test_dir="Sabbatical-2026-NAM/NAM_Notebook/tests",
+    test_dir="Sabbatical-2026-NAM/NAM_Notebook/fried_tests",
     out_dir="Sabbatical-2026-NAM/NAM_Notebook/test_predictions",
     csv_path="Sabbatical-2026-NAM/NAM_Notebook/experiment_results.csv",
     run_metadata=None,
