@@ -186,7 +186,7 @@ def evaluate_case(
 
 
 def evaluate_predictions(
-    test_dir: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/fried_tests",
+    test_dir: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/tests",
     pred_dir: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/test_predictions",
     csv_path: str | Path = "Sabbatical-2026-NAM/NAM_Notebook/experiment_results.csv",
     sr: int = 48_000,
@@ -294,7 +294,7 @@ def render_model(model, di_path, out_path):
 #########################
 def run_test_set(
     model,
-    test_dir="Sabbatical-2026-NAM/NAM_Notebook/fried_tests",
+    test_dir="Sabbatical-2026-NAM/NAM_Notebook/tests",
     out_dir="Sabbatical-2026-NAM/NAM_Notebook/test_predictions",
     csv_path="Sabbatical-2026-NAM/NAM_Notebook/experiment_results.csv",
     run_metadata=None,
