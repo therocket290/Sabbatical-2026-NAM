@@ -237,7 +237,7 @@ def evaluate_predictions(
 
     # Defined the frequencies you are using for the sine test
     # (Including the new 5000 and 7000 Hz torture tests)
-    SINE_FREQS = [55, 110, 220, 440, 880, 1200] #, 5000, 7000]
+    SINE_FREQS = [55, 110, 220, 440, 880, 1200, 5000, 7000]
 
     cases = {
         "sine": {
