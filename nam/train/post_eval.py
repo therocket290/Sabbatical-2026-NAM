@@ -142,6 +142,7 @@ def _masked_esr(ref: np.ndarray, est: np.ndarray, mask: np.ndarray) -> Optional[
 
 
 ######################################
+
 def _calculate_sadr(
     signal: np.ndarray, 
     f_ins: List[float], 
@@ -150,20 +151,17 @@ def _calculate_sadr(
     tolerance_hz: float = 40.0
 ) -> float:
     """
-    Calculates Signal-to-Aliasing Distortion Ratio in dB.
-    f_ins: List of fundamental frequencies present in the signal.
+    Calculates SADR in dB for a SPECIFIC set of input frequencies.
     """
-    N = len(signal)
-    # Use a Hann window to reduce spectral leakage
-    #window = np.hann(N)
-    #import scipy.signal as signal
     from scipy.signal.windows import hann
-    window = hann(N)
     from numpy.fft import rfft, rfftfreq
+    
+    N = len(signal)
+    window = hann(N)
     spec = np.abs(rfft(signal * window))
     freqs = rfftfreq(N, 1/sr)
     
-    # Create a mask for all expected harmonics of all input frequencies
+    # Mask ONLY for the frequencies provided in f_ins
     is_harmonic = np.zeros_like(freqs, dtype=bool)
     for f_in in f_ins:
         for h in range(1, num_harmonics + 1):
@@ -172,19 +170,71 @@ def _calculate_sadr(
                 break
             is_harmonic |= (np.abs(freqs - target_f) < tolerance_hz)
             
-    # Aliasing/Noise is everything else (ignoring DC/Sub-bass below 20Hz)
+    # Aliasing/Noise is everything else (ignoring DC)
     is_aliasing = (~is_harmonic) & (freqs > 20)
     
     sig_energy = np.sum(spec[is_harmonic]**2)
     alias_energy = np.sum(spec[is_aliasing]**2)
     
     if alias_energy == 0:
-        return 100.0 # Perfect signal
+        return 100.0
         
     sadr = 10 * np.log10(sig_energy / (alias_energy + 1e-12))
     return float(sadr)
 
 def evaluate_case(
+    ref_path: Path,
+    est_path: Path,
+    sr: int = 48_000,
+    do_segment_metrics: bool = False,
+    sine_frequencies: Optional[List[float]] = None,
+    max_shift: int = 4000,
+) -> Dict[str, Optional[float]]:
+    # ... (Keep your existing alignment and ESR logic) ...
+    ref = _to_numpy_mono(wav_to_tensor(ref_path, rate=sr))
+    est = _to_numpy_mono(wav_to_tensor(est_path, rate=sr))
+
+    ref = _remove_dc(ref)
+    est = _remove_dc(est)
+
+    ref_al, est_al, shift_samples = _align_by_xcorr(ref, est, max_shift=max_shift)
+    err = est_al - ref_al
+
+    out: Dict[str, Optional[float]] = {
+        "shift_samples": int(shift_samples),
+        "shift_ms": 1000.0 * shift_samples / sr,
+        "ESR": _esr_np(ref_al, est_al),
+        "RMSE": float(np.sqrt(np.mean(err * err))),
+        "MAE": float(np.mean(np.abs(err))),
+        "SpecMagL2": _specmag_l2(ref_al, est_al),
+        "ref_rms": _safe_rms(ref_al),
+        "est_rms": _safe_rms(est_al),
+    }
+
+    # Split SADR Calculation
+    if sine_frequencies:
+        low_freqs = [f for f in sine_frequencies if f < 2000]
+        high_freqs = [f for f in sine_frequencies if f >= 2000]
+        
+        # Original aggregate score
+        out["SADR_all"] = _calculate_sadr(est_al, sine_frequencies, sr=sr)
+        
+        # Segmented scores
+        if low_freqs:
+            out["SADR_low"] = _calculate_sadr(est_al, low_freqs, sr=sr)
+        if high_freqs:
+            out["SADR_high"] = _calculate_sadr(est_al, high_freqs, sr=sr)
+
+    # ... (Keep existing segmentation logic) ...
+    
+
+    if do_segment_metrics:
+        # ... (Rest of your existing segment logic) ...
+        pass
+
+    return out
+        
+def evaluate_case_old(
     ref_path: Path,
     est_path: Path,
     sr: int = 48_000,
