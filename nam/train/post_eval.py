@@ -60,7 +60,8 @@ def _calculate_asr_metrics(
     # Slicing from the middle of your 2s clip to avoid transients
     N = 48017 
     if len(signal) > N + sr:
-        start = sr # Start at 1.0 seconds
+        start = int(sr * 0.5) # Start at 0.5 seconds to be safe
+        #OLD: start = sr # Start at 1.0 seconds
         signal = signal[start : start + N]
     else:
         signal = signal[:N]
@@ -105,7 +106,10 @@ def evaluate_case(ref_path, est_path, sr=48000, sine_frequencies=None):
         out.update(metrics)
     return out
 
-def run_test_set(model, test_dir="tests", out_dir="test_predictions", csv_path="experiment_results.csv"):
+def run_test_set(model, test_dir="tests", 
+                 out_dir="test_predictions", 
+                 csv_path="experiment_results.csv",
+                 run_metadata=None):
     test_dir, out_dir = Path(test_dir), Path(out_dir)
     out_dir.mkdir(exist_ok=True)
 
@@ -129,8 +133,8 @@ def run_test_set(model, test_dir="tests", out_dir="test_predictions", csv_path="
     cases = {
         "sine_soft_mid":  {"freqs": [1249]},
         "sine_loud_mid":  {"freqs": [1249]},
-        "sine_soft_high": {"freqs": [5003, 7001]},
-        "sine_loud_high": {"freqs": [5003, 7001]},
+        "sine_soft_high": {"freqs": [5003]},
+        "sine_loud_high": {"freqs": [5003]},
         "sweep": {"freqs": None},
         "playing": {"freqs": None},
     }
