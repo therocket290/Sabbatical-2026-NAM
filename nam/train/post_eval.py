@@ -290,11 +290,29 @@ def evaluate_predictions(
     SINE_FREQS = [55, 110, 220, 440, 880, 1200, 5000, 7000]
 
     cases = {
-        "sine": {
-            "ref": test_dir / "sine_ref.wav",
-            "est": pred_dir / "sine_pred.wav",
+        "sine_soft_low": {
+            "ref": test_dir / "sine_soft_low_ref.wav",
+            "est": pred_dir / "sine_soft_low_pred.wav",
             "segment": False,
-            "sine_freqs": SINE_FREQS,
+            "sine_freqs": [55, 110, 220, 440, 880, 1200],
+        },
+        "sine_loud_low": {
+            "ref": test_dir / "sine_loud_low_ref.wav",
+            "est": pred_dir / "sine_loud_low_pred.wav",
+            "segment": False,
+            "sine_freqs": [55, 110, 220, 440, 880, 1200],
+        },     
+        "sine_soft_high": {
+            "ref": test_dir / "sine_soft_high_ref.wav",
+            "est": pred_dir / "sine_soft_high_pred.wav",
+            "segment": False,
+            "sine_freqs": [5000, 7000],
+        },
+        "sine_loud_high": {
+            "ref": test_dir / "sine_loud_high_ref.wav",
+            "est": pred_dir / "sine_loud_high_pred.wav",
+            "segment": False,
+            "sine_freqs": [5000, 7000],
         },
         "sweep": {
             "ref": test_dir / "sweep_ref.wav",
