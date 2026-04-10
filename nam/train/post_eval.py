@@ -402,7 +402,10 @@ def run_test_set(
     out_dir.mkdir(exist_ok=True)
 
     tests = [
-        ("sine", "sine_DI.wav"),
+        ("sine_soft_low", "sine_soft_low_DI.wav"),
+        ("sine_loud_low", "sine_loud_low_DI.wav"),
+        ("sine_soft_high", "sine_soft_high_DI.wav"),
+        ("sine_loud_high", "sine_loud_high_DI.wav"),
         ("sweep", "sweep_DI.wav"),
         ("playing", "playing_DI.wav"),
     ]
