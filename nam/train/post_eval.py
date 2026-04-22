@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, Optional
 from nam.data import wav_to_tensor, np_to_wav
 from nam.models.losses import esr as nam_esr
+import soundfile as sf
 
 
 def _to_numpy_mono(x) -> np.ndarray:
@@ -133,15 +134,29 @@ def evaluate_case_sine_sato(est_path, f0, sr=48017):
     out.update(_calculate_asr_metrics_sato(est, f0=f0, sr=sr, N=48017, discard_seconds=0.5))
     return out
 
+ # def _render_cases(model, test_dir: Path, out_dir: Path, cases: Dict[str, str]):
+ #   out_dir.mkdir(parents=True, exist_ok=True)
+ #   for name, di_name in cases.items():
+ #       x = wav_to_tensor(test_dir / di_name)
+  #      with torch.no_grad():
+ #           y_pred = model(x).flatten().cpu().numpy()
+ #       np_to_wav(y_pred, out_dir / f"{name}_pred.wav")
 
-def _render_cases(model, test_dir: Path, out_dir: Path, cases: Dict[str, str]):
+def _write_wav(path: Path, y: np.ndarray, sr: int):
+    y = np.asarray(y, dtype=np.float32)
+    peak = np.max(np.abs(y))
+    if peak > 0.999:
+        y = (y / peak * 0.999).astype(np.float32)
+    sf.write(path, y, sr, subtype="PCM_24")
+
+
+def _render_cases(model, test_dir: Path, out_dir: Path, cases: Dict[str, str], sr: int):
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, di_name in cases.items():
-        x = wav_to_tensor(test_dir / di_name)
+        x = wav_to_tensor(test_dir / di_name, rate=sr)
         with torch.no_grad():
             y_pred = model(x).flatten().cpu().numpy()
-        np_to_wav(y_pred, out_dir / f"{name}_pred.wav")
-
+        _write_wav(out_dir / f"{name}_pred.wav", y_pred, sr)
 
 def run_test_set(
     model,
