@@ -192,8 +192,9 @@ def run_test_set(
         "sine_loud_high": 5003.0,
     }
 
-    _render_cases(model, standard_test_dir, out_dir_standard, standard_cases)
-    _render_cases(model, sine_test_dir, out_dir_sine, sine_cases)
+
+    _render_cases(model, standard_test_dir, out_dir_standard, standard_cases, sr=48000)
+    _render_cases(model, sine_test_dir, out_dir_sine, sine_cases, sr=48017)
 
     results = {}
 
