@@ -1810,20 +1810,38 @@ def train(
     from nam.train.post_eval import run_test_set
 
     # run_test_set(model)
+    
+    #run_test_set(
+    #    model,
+    #    test_dir="tests",
+    #    out_dir="test_predictions",
+    #    csv_path="experiment_results.csv",
+    #    run_metadata={
+    #    "train_label": input_path,
+    #    "validation_esr": float(validation_esr),
+    #    "seed":seed,
+    #    "epochs": epochs,
+    #    "latency": latency,
+    #    "model_type": model_type,
+    #}
+    #)
+
     run_test_set(
         model,
-        test_dir="tests",
-        out_dir="test_predictions",
-        csv_path="experiment_results.csv",
+        standard_test_dir="tests_48k",
+        sine_test_dir="tests_48017",
+        out_dir_standard="test_predictions_48k",
+        out_dir_sine="test_predictions_48017",
+        csv_path="experiment_results_asr_sato.csv",
         run_metadata={
-        "train_label": input_path,
-        "validation_esr": float(validation_esr),
-        "seed":seed,
-        "epochs": epochs,
-        "latency": latency,
-        "model_type": model_type,
-    }
-    )
+            "train_label": input_path,
+            "validation_esr": float(validation_esr),
+            "seed": seed,
+            "epochs": epochs,
+            "latency": latency,
+            "model_type": model_type,
+        }
+)
     
     # evaluate_predictions()
     ########################
